@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legend of Gerald — таблица рекордов</title>
+<meta name="description" content="Кто и за сколько прошёл Legend of Gerald">
+<style>
+  :root {
+    --bg: #1a0c24; --panel: #2a1438; --panel2: #21102c; --line: #4a2a5a;
+    --gold: #ffd05c; --cream: #ffecd6; --muted: #c4acc4; --red: #ac1c26;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--cream); font: 16px/1.45 Verdana, Tahoma, sans-serif; }
+
+  header {
+    position: relative; min-height: 320px; display: flex; align-items: flex-end;
+    background: #2a1030 url("img/sunset.png") center 35% / cover no-repeat;
+    image-rendering: pixelated; border-bottom: 4px solid #200e26;
+  }
+  header::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(26,12,36,0) 30%, rgba(26,12,36,.92) 100%); }
+  .hero { position: relative; z-index: 1; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 18px 22px; }
+  h1 { margin: 0; color: var(--gold); font-size: clamp(32px, 6vw, 54px); letter-spacing: 1px;
+       text-shadow: 3px 3px 0 #200e26, -1px -1px 0 #200e26; }
+  .tag { color: var(--cream); text-shadow: 2px 2px 0 #200e26; margin-top: 2px; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 22px 18px 50px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 8px; }
+  .stat { background: var(--panel); border: 2px solid var(--line); border-radius: 8px; padding: 10px 16px; }
+  .stat .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .stat .v { color: var(--gold); font-size: 22px; font-weight: bold; }
+  .stat .s { color: var(--muted); font-size: 13px; }
+
+  h2 { color: var(--gold); font-size: 20px; margin: 30px 0 10px; }
+  .tablewrap { overflow-x: auto; border: 2px solid var(--line); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); }
+  th, td { padding: 10px 12px; text-align: left; white-space: nowrap; }
+  th { background: var(--panel2); color: var(--muted); font-weight: normal; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  tr + tr td { border-top: 1px solid var(--line); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.place { width: 60px; color: var(--muted); font-weight: bold; }
+  td.time { color: var(--gold); font-weight: bold; }
+  tr.p1 td.place::before { content: "♛ "; color: var(--gold); }
+  tr.p1 td.name { color: var(--gold); font-weight: bold; }
+  tr.p2 td.place { color: #d8dce8; } tr.p3 td.place { color: #e3a06a; }
+  tr.new td { animation: flash 2.5s ease-out; }
+  @keyframes flash { from { background: rgba(255,208,92,.35); } to { background: transparent; } }
+  .empty { padding: 26px; text-align: center; color: var(--muted); }
+
+  .meme { display: flex; gap: 18px; align-items: center; margin-top: 34px; background: var(--panel);
+          border: 2px solid var(--gold); border-radius: 10px; padding: 14px; }
+  .meme img { width: 190px; max-width: 40%; border-radius: 6px; background: #fff; }
+  .meme b { color: var(--gold); display: block; font-size: 12px; letter-spacing: 1px; }
+  .meme .t { font-size: 20px; margin: 2px 0 4px; }
+  .meme .d { color: var(--muted); font-size: 14px; }
+
+  footer { margin-top: 34px; color: var(--muted); font-size: 13px; }
+  footer .upd { opacity: .8; }
+  @media (max-width: 560px) { th.opt, td.opt { display: none; } .meme { flex-direction: column; text-align: center; } .meme img { max-width: 70%; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <h1>Legend of Gerald</h1>
+    <div class="tag">Таблица рекордов: кто и за сколько прошёл игру</div>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat"><div class="k">Рекорд</div><div class="v" id="s-best">—</div><div class="s" id="s-best-name">пока никого</div></div>
+    <div class="stat"><div class="k">Игроков</div><div class="v" id="s-players">0</div></div>
+    <div class="stat"><div class="k">Прохождений</div><div class="v" id="s-runs">0</div></div>
+    <div class="stat"><div class="k">Гоблинов повержено</div><div class="v" id="s-kills">0</div><div class="s">всеми вместе</div></div>
+  </div>
+
+  <h2>Лучшее время</h2>
+  <div class="tablewrap"><table id="top">
+    <tr><th>#</th><th>Игрок</th><th class="num">Время</th><th class="num opt">Гоблины</th><th class="num opt">Монеты</th><th class="num opt">Смерти</th><th class="num">Когда</th></tr>
+  </table></div>
+
+  <h2>Последние прохождения</h2>
+  <div class="tablewrap"><table id="recent">
+    <tr><th>Игрок</th><th class="num">Время</th><th class="num opt">Гоблины</th><th class="num opt">Смерти</th><th class="num">Когда</th></tr>
+  </table></div>
+
+  <div class="meme">
+    <img src="img/trio.jpg" alt="Мем «our trio»">
+    <div>
+      <b>ДОСТИЖЕНИЕ</b>
+      <div class="t">Третий лишний</div>
+      <div class="d">Вывести детей из логова слизня. А потом всё-таки обнять Лёшу.</div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Кнопку «Выход» в игре охраняет рыцарь. Будь осторожен.</div>
+    <div class="upd" id="upd">Загружаю результаты…</div>
+  </footer>
+</main>
+
+<script>
+const DATA_URL = "data/results.json";
+let known = new Set();
+let first = true;
+
+function fmtTime(sec) {
+  let s = Math.round(sec || 0);
+  const h = Math.floor(s / 3600); s -= h * 3600;
+  const m = Math.floor(s / 60); s -= m * 60;
+  const pad = n => String(n).padStart(2, "0");
+  return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+function fmtDate(iso, withTime) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  const p = n => String(n).padStart(2, "0");
+  const day = `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
+  return withTime ? `${day} ${p(d.getHours())}:${p(d.getMinutes())}` : day;
+}
+const key = name => String(name).trim().replace(/\s+/g, " ").toLocaleLowerCase("ru");
+
+// лучший результат каждого игрока («Вова» и «вова» — один игрок)
+function bestPerPlayer(runs) {
+  const best = new Map();
+  for (const r of runs) {
+    const k = key(r.name);
+    const b = best.get(k);
+    if (!b || r.seconds < b.seconds || (r.seconds === b.seconds && r.id < b.id)) best.set(k, r);
+  }
+  return [...best.values()].sort((a, b) => a.seconds - b.seconds || a.id - b.id);
+}
+
+function cell(tr, text, cls) {
+  const td = document.createElement("td");
+  td.textContent = text;            // имена вставляем только как текст — никакого HTML
+  if (cls) td.className = cls;
+  tr.appendChild(td);
+}
+function clearRows(table) { while (table.rows.length > 1) table.deleteRow(1); }
+function emptyRow(table, cols, text) {
+  const tr = table.insertRow(); const td = tr.insertCell();
+  td.colSpan = cols; td.className = "empty"; td.textContent = text;
+}
+
+function render(data) {
+  const runs = (data.runs || []).filter(r => r && r.name && r.seconds > 0);
+  const top = bestPerPlayer(runs);
+  document.getElementById("s-players").textContent = top.length;
+  document.getElementById("s-runs").textContent = runs.length;
+  document.getElementById("s-kills").textContent = runs.reduce((a, r) => a + (r.kills || 0), 0);
+  if (top.length) {
+    document.getElementById("s-best").textContent = fmtTime(top[0].seconds);
+    document.getElementById("s-best-name").textContent = top[0].name;
+  }
+
+  const t = document.getElementById("top"); clearRows(t);
+  if (!top.length) emptyRow(t, 7, "Пока никто не прошёл. Будь первым!");
+  top.slice(0, 100).forEach((r, i) => {
+    const tr = t.insertRow(); tr.className = "p" + (i + 1) + (!first && !known.has(r.id) ? " new" : "");
+    cell(tr, i + 1, "place"); cell(tr, r.name, "name"); cell(tr, fmtTime(r.seconds), "num time");
+    cell(tr, r.kills || 0, "num opt"); cell(tr, r.coins || 0, "num opt"); cell(tr, r.deaths || 0, "num opt");
+    cell(tr, fmtDate(r.date), "num");
+  });
+
+  const rc = document.getElementById("recent"); clearRows(rc);
+  const recent = [...runs].sort((a, b) => b.id - a.id).slice(0, 10);
+  if (!recent.length) emptyRow(rc, 5, "Тут появятся свежие прохождения.");
+  for (const r of recent) {
+    const tr = rc.insertRow(); if (!first && !known.has(r.id)) tr.className = "new";
+    cell(tr, r.name); cell(tr, fmtTime(r.seconds), "num time"); cell(tr, r.kills || 0, "num opt");
+    cell(tr, r.deaths || 0, "num opt"); cell(tr, fmtDate(r.date, true), "num");
+  }
+  known = new Set(runs.map(r => r.id));
+  first = false;
+  document.getElementById("upd").textContent =
+    "Обновлено " + new Date().toLocaleTimeString("ru") + ". Новые результаты появляются примерно через минуту после финала.";
+}
+
+async function load() {
+  try {
+    const r = await fetch(DATA_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    render(await r.json());
+  } catch (e) {
+    document.getElementById("upd").textContent = "Не получилось загрузить результаты (" + e.message + "). Попробую ещё раз.";
+  }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
